@@ -1,0 +1,57 @@
+# ==========================================
+# PYTHON
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ==========================================
+# ENTORNO VIRTUAL
+# ==========================================
+venv/
+.venv/
+env/
+
+# ==========================================
+# BASE DE DATOS (MUY IMPORTANTE)
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+# NOTA: No subimos la base de datos porque contiene la información 
+# real de los movimientos de La Lucha. Si la subes, podrías sobreescribir 
+# los datos reales al bajar el código en otra PC, además de exponer 
+# información financiera privada.
+
+# ==========================================
+# ENTORNOS DE DESARROLLO (IDEs)
+# ==========================================
+# Si usas VS Code
+.vscode/
+# Si usas PyCharm
+.idea/
+
+# ==========================================
+# SISTEMAS OPERATIVOS
+# ==========================================
+# Basura de Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# Basura de Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ==========================================
+# COMPILADOS FUTUROS (Para cuando hagamos el .exe)
+# ==========================================
+dist/
+build/
+*.spec
+
+# ==========================================
+# ARCHIVOS DE TEXTO .txt
+# ==========================================
+*.txt
