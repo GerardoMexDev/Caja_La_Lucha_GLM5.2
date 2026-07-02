@@ -8,7 +8,7 @@ from typing import Optional, Callable, Dict, Any
 from controllers.user_controller import UserController
 
 
-class LoginView(ctk.CTk):
+class LoginFrame(ctk.CTkFrame):
     """
     Ventana de login del sistema Caja La Lucha.
 
@@ -32,47 +32,27 @@ class LoginView(ctk.CTk):
 
     def __init__(
         self,
+        parent,
         user_controller: UserController,
         on_login_success: Callable[[Dict[str, Any]], None]
     ) -> None:
         """
-        Inicializa la ventana de login.
+        Inicializa el frame de login.
 
         Args:
+            parent: Parent widget.
             user_controller: Controlador de usuarios.
             on_login_success: Función callback para login exitoso.
         """
-        super().__init__()
+        super().__init__(parent, fg_color=self.COLOR_BG)
 
         self.user_controller = user_controller
         self.on_login_success = on_login_success
         self._login_attempts = 0
         self._show_password = False
 
-        # Configurar ventana
-        self._configure_window()
         self._create_widgets()
         self._bind_events()
-
-    def _configure_window(self) -> None:
-        """Configura las propiedades de la ventana."""
-        self.title("Caja La Lucha - Inicio de Sesión")
-        self.geometry("450x550")
-        self.minsize(400, 500)
-        self.resizable(False, False)
-
-        # Configurar tema
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
-
-        # Color de fondo
-        self.configure(fg_color=self.COLOR_BG)
-
-        # Centrar ventana
-        self.update_idletasks()
-        x = (self.winfo_screenwidth() // 2) - (450 // 2)
-        y = (self.winfo_screenheight() // 2) - (550 // 2)
-        self.geometry(f"450x550+{x}+{y}")
 
     def _create_widgets(self) -> None:
         """Crea todos los widgets de la interfaz."""
