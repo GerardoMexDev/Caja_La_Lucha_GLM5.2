@@ -1,0 +1,8 @@
+COLOR_PRIMARY   = "#1a5276"
+COLOR_SECONDARY = "#2980b9"
+COLOR_ACCENT    = "#e67e22"
+COLOR_BG        = "#0f1923"
+COLOR_CARD      = "#1a2332"
+COLOR_TEXT      = "#ecf0f1"
+COLOR_ERROR     = "#e74c3c"
+COLOR_SUCCESS   = "#27ae60"

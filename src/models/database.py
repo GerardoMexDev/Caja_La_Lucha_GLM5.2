@@ -82,7 +82,7 @@ class DatabaseManager:
             categoria TEXT NOT NULL, -- 'servicio_taller', 'venta', 'pago_credito', 'compra_tiendas', 'adelanto_sueldo', 'deposito_bancario_ext'
             motivo TEXT NOT NULL,
             monto REAL NOT NULL,
-            moneda TEXT NOT NULL DEFAULT 'ARS', -- 'ARS', 'USD', 'BRL'
+            moneda TEXT NOT NULL DEFAULT 'UYU', -- 'UYU', 'USD', 'BRL'
             metodo_pago TEXT NOT NULL DEFAULT 'Efectivo', -- 'Efectivo', 'Tarjeta Débito', 'Tarjeta Crédito', 'Transferencia', 'Cheque'
             es_banco INTEGER NOT NULL DEFAULT 0, -- 1 si va a la cuenta bancaria virtual (Todo lo que no sea efectivo)
             empleado TEXT, -- Solo se usa si categoria es 'adelanto_sueldo'
