@@ -81,12 +81,19 @@ class MovimientoController:
     def obtener_resumen_del_dia(self, caja_id: int) -> Dict[str, Any]:
         movimientos = self.obtener_movimientos_del_dia(caja_id)
 
+        # OBTENER FONDO INICIAL CORRECTAMENTE
+        row = self.db.ejecutar_query(
+            "SELECT fondo_inicial_pesos FROM cajas WHERE id = ?", (caja_id,)
+        ).fetchone()
+        fondo_inicial = row['fondo_inicial_pesos'] if row else 0.0
+
         resumen: Dict[str, Any] = {
             'UYU': {'ingresos': 0.0, 'egresos': 0.0, 'saldo': 0.0},
             'USD': {'ingresos': 0.0, 'egresos': 0.0, 'saldo': 0.0},
             'BRL': {'ingresos': 0.0, 'egresos': 0.0, 'saldo': 0.0},
-            'efectivo_uyu': 0.0,
+            'efectivo_uyu': fondo_inicial,
             'banco_uyu': 0.0,
+            'fondo_inicial': fondo_inicial,
             'ultimos_movimientos': movimientos[:10],
         }
 

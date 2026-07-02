@@ -87,8 +87,8 @@ class PortalFrame(ctk.CTkFrame):
             height=50,
             font=ctk.CTkFont(size=15, weight="bold"),
             corner_radius=12,
-            fg_color="#2c3e50",
-            state="disabled",
+            fg_color="#34495e",
+            state="normal",
             command=self._abrir_caja,
         )
         self.open_btn.pack(fill="x", padx=60, pady=(20, 0))

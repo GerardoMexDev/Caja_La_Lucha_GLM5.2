@@ -1,0 +1,56 @@
+echo "# Caja_La_Lucha_GLM5.2" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/GerardoMexDev/Caja_La_Lucha_GLM5.2.git
+git push -u origin main
+
+
+PRIMER COMMIT
+git add .
+git commit -m "Sesion 1: Definicion de arquitectura, requisitos, .gitignore y base de datos inicial"
+git branch -M main
+git remote add origin https://github.com/GerardoMexDev/Caja_La_Lucha_GLM5.2.git
+git push -u origin main
+
+
+
+
+
+
+SistemaCajaLaLucha/
+│
+├── models/
+│   ├── __init__.py
+│   └── database.py       <-- Crearemos este archivo ahora
+│
+├── views/
+│   └── __init__.py
+│
+├── controllers/
+│   └── __init__.py
+│
+├── utils/
+│   └── __init__.py
+│
+└── main.py               <-- No lo crees todavía, será el archivo de inicio
+
+
+
+
+🧪 Para probar
+Ejecuta desde la raíz del proyecto:
+
+bash
+
+# Activar entorno virtual si no está activado
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
+
+# Ejecutar la aplicación
+python main.py
+Credenciales por defecto:
+
+Usuario: admin
+Contraseña: admin123
