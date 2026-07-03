@@ -27,11 +27,13 @@ class PortalFrame(ctk.CTkFrame):
         usuario: Dict[str, Any],
         caja_controller: CajaController,
         on_caja_abierta: Callable[[Dict[str, Any]], None],
+        fondo_sugerido: float = 0.0,
     ) -> None:
         super().__init__(parent, fg_color=COLOR_BG)
         self.usuario = usuario
         self.caja_controller = caja_controller
         self.on_caja_abierta = on_caja_abierta
+        self.fondo_sugerido = fondo_sugerido
         self._create_widgets()
 
     def _create_widgets(self) -> None:
@@ -88,7 +90,7 @@ class PortalFrame(ctk.CTkFrame):
             font=ctk.CTkFont(size=15, weight="bold"),
             corner_radius=12,
             fg_color="#34495e",
-            state="normal",
+            state="disabled",
             command=self._abrir_caja,
         )
         self.open_btn.pack(fill="x", padx=60, pady=(20, 0))
@@ -99,6 +101,10 @@ class PortalFrame(ctk.CTkFrame):
             text_color=COLOR_TEXT,
         )
         self.status_label.pack(pady=(10, 0))
+
+        if self.fondo_sugerido > 0:
+            self.fondo_entry.insert(0, str(self.fondo_sugerido))
+            self._validate_fondo()
 
     def _validate_fondo(self, event=None) -> None:
         value = self.fondo_entry.get().strip().replace(",", ".")

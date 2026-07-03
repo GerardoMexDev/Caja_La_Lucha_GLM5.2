@@ -54,3 +54,34 @@ Próximos pasos (Sesión 4):
 Implementar Cierre de Caja.
 Generación de Reportes (PDF/WhatsApp).
 Gestión de usuarios (Altas/Bajas).
+
+SESIÓN 4: Cierre de Caja, Correcciones Críticas y EstabilizaciónFecha: 2024-07-02 | Estado: Completada
+
+Lo que se hizo:
+
+Task 10: Implementado cerrar_caja() en caja_controller.py. Actualiza estado, fechas, usuario que cierra y saldo final en la BD.
+Task 11: Creado cierre_caja_view.py. Muestra resumen de monedas (UYU/USD/BRL), efectivo vs banco, campo de conteo físico y cálculo de diferencia en tiempo real (Falta/Sobra/Cuadra).
+Task 12: Integrado botón "Cerrar Caja" en el sidebar de dashboard_view.py y navegación en main.py.
+Feature: Implementado "Fondo inicial sugerido". Al abrir una nueva caja, se pre-carga automáticamente con el saldo final de la última caja cerrada (obtener_ultimo_saldo_cerrado en controlador, lógica en portal_view.py).
+Correcciones Críticas realizadas en esta sesión:
+
+FIX BD Duplicada: Se descubrió que al ejecutar cd src && python main.py, SQLite creaba una base de datos vacía dentro de src/ y no usaba la real del proyecto. Se solucionó en main.py usando os.path para apuntar siempre a la raíz del proyecto.
+FIX Renderizado Python 3.14: El usuario utiliza Python 3.14 (Alpha), el cual tiene un bug conocido donde CustomTkinter colapsa los nuevos frames a tamaño 0x0 si se usa pack. Se solucionó cambiando el layout interno de cierre_caja_view.py a grid.
+FIX Orden de creación: Se corrigió un error en portal_view.py donde se intentaba validar un campo antes de que el widget existiera en la memoria.
+Lecciones aprendidas:
+
+LECCIÓN DE ORO DE RUTAS: Nunca confiar en rutas relativas para la BD si el punto de entrada cambia de directorio. Siempre calcular BASE_DIR con os.path.dirname(os.path.abspath(__file__)).
+LECCIÓN DE CTk: Si un frame se instancia sin errores pero no se ve, es un problema de layout. Cambiar pack por grid suele ser el parche definitivo.
+ADVERTENCIA: Python 3.14 es inestable para UI de escritorio. Se recomienda encarecidamente usar Python 3.12.x para entorno de producción.
+Estado actual del sistema:
+
+Login: Funcional.
+Apertura de Caja: Funcional (con fondo sugerido).
+Registro de Movimientos: Funcional.
+Resumen del Día: Funcional.
+Cierre de Caja: Funcional (con conteo físico).
+Ciclo completo: Probado y validado.
+Próximos pasos (Sesión 5):
+
+Generación de Reportes (PDF/WhatsApp).
+Gestión de usuarios (Altas/Bajas) para el administrador.

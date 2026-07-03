@@ -1,8 +1,5 @@
-"""
-Punto de entrada principal del Sistema Caja La Lucha.
-"""
-
 import sys
+import os  # NUEVO
 import customtkinter as ctk
 from typing import Dict, Any, Optional
 
@@ -20,7 +17,12 @@ class CajaLaLuchaApp(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
 
-        self.db = DatabaseManager()
+        # NUEVO: Forzar que la BD siempre esté en la raíz del proyecto
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(BASE_DIR, "..", "lucha_caja.db")
+        print(f">>> CONECTADO A LA BD: {db_path}")
+
+        self.db = DatabaseManager(db_path) # MODIFICADO: antes era DatabaseManager()
         self.user_controller = UserController(self.db)
         self.caja_controller = CajaController(self.db)
         self.movimiento_controller = MovimientoController(self.db)
@@ -75,11 +77,16 @@ class CajaLaLuchaApp(ctk.CTk):
         self._clear_frame()
         self.title("Caja La Lucha — Apertura de Jornada")
         self._center(500, 420)
+        
+        # NUEVO: Obtener el saldo de la última caja cerrada
+        fondo_sugerido = self.caja_controller.obtener_ultimo_saldo_cerrado()
+        
         self._active_frame = PortalFrame(
             parent=self,
             usuario=self.current_user,
             caja_controller=self.caja_controller,
             on_caja_abierta=self._on_caja_abierta,
+            fondo_sugerido=fondo_sugerido,  # NUEVO
         )
         self._active_frame.pack(fill="both", expand=True)
 
@@ -98,9 +105,18 @@ class CajaLaLuchaApp(ctk.CTk):
             usuario=self.current_user,
             caja=self.current_caja,
             movimiento_controller=self.movimiento_controller,
+            caja_controller=self.caja_controller,
             on_logout=self._on_logout,
+            on_caja_cerrada=self._on_caja_cerrada,
         )
         self._active_frame.pack(fill="both", expand=True)
+
+    def _on_caja_cerrada(self) -> None:
+        """Se ejecuta tras cerrar caja: vuelve al login."""
+        self.current_user = None
+        self.current_caja = None
+        self.minsize(0, 0)
+        self._show_login()
 
     def _on_logout(self) -> None:
         self.current_user = None

@@ -7,6 +7,7 @@ import customtkinter as ctk
 from typing import Dict, Any, Callable, Optional
 
 from controllers.movimiento_controller import MovimientoController
+from controllers.caja_controller import CajaController
 from utils.constants import (
     COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_BG,
     COLOR_CARD, COLOR_TEXT, COLOR_ERROR
@@ -22,18 +23,22 @@ class DashboardFrame(ctk.CTkFrame):
         usuario: Dict[str, Any],
         caja: Dict[str, Any],
         movimiento_controller: MovimientoController,
+        caja_controller: CajaController,
         on_logout: Callable[[], None],
+        on_caja_cerrada: Callable[[], None],
     ) -> None:
         super().__init__(parent, fg_color=COLOR_BG)
         self.usuario = usuario
         self.caja = caja
         self.movimiento_controller = movimiento_controller
+        self.caja_controller = caja_controller
         self.on_logout = on_logout
+        self.on_caja_cerrada = on_caja_cerrada
         
         self._content_frame: Optional[ctk.CTkFrame] = None
 
         self._create_widgets()
-        self._show_movimientos()  # Vista por defecto al entrar
+        self._show_movimientos()
 
     def _create_widgets(self) -> None:
         # --- SIDEBAR ---
@@ -75,6 +80,17 @@ class DashboardFrame(ctk.CTkFrame):
         )
         self.btn_resumen.pack(fill="x", padx=20, pady=10)
 
+        # Separador antes de acciones finales
+        ctk.CTkFrame(self.sidebar, height=2, fg_color="#2c3e50").pack(fill="x", padx=20, pady=(15, 10))
+
+        self.btn_cerrar_caja = ctk.CTkButton(
+            self.sidebar, text="🔒 Cerrar Caja", height=40,
+            font=ctk.CTkFont(size=13),
+            fg_color="#7f8c8d", hover_color="#95a5a6",
+            corner_radius=10, command=self._show_cierre_caja
+        )
+        self.btn_cerrar_caja.pack(fill="x", padx=20, pady=(0, 10))
+
         # Spacer
         ctk.CTkFrame(self.sidebar, fg_color="transparent").pack(fill="both", expand=True)
 
@@ -105,6 +121,7 @@ class DashboardFrame(ctk.CTkFrame):
         """Deja los botones del sidebar en su estado por defecto."""
         self.btn_movimientos.configure(fg_color=COLOR_SECONDARY, text_color="white", border_width=0)
         self.btn_resumen.configure(fg_color="transparent", text_color=COLOR_TEXT, border_width=2, border_color="#34495e")
+        self.btn_cerrar_caja.configure(fg_color="#7f8c8d", text_color="white", border_width=0)
 
     def _show_movimientos(self) -> None:
         from views.movimientos_view import MovimientosFrame
@@ -137,7 +154,25 @@ class DashboardFrame(ctk.CTkFrame):
         )
         self._content_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
+    def _show_cierre_caja(self) -> None:
+        from views.cierre_caja_view import CierreCajaFrame
+        self._clear_content()
+        self._reset_sidebar_buttons()
+
+        self.btn_cerrar_caja.configure(
+            fg_color="transparent", text_color=COLOR_ACCENT,
+            border_width=2, border_color=COLOR_ACCENT
+        )
+
+        self._content_frame = CierreCajaFrame(
+            parent=self.content_area,
+            caja=self.caja,
+            usuario=self.usuario,
+            caja_controller=self.caja_controller,
+            on_caja_cerrada=self.on_caja_cerrada
+        )
+        self._content_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
     def _on_movement_added(self) -> None:
         """Callback cuando se agrega un movimiento para refrescar la tabla."""
-        # Por ahora simplemente re-renderiza la vista. Se puede optimizar después.
         self._show_movimientos()

@@ -71,3 +71,40 @@ class CajaController:
             t['saldo'] = t['ingresos'] - t['egresos']
 
         return result
+
+
+    def cerrar_caja(self, caja_id: int, usuario_id: int) -> Dict[str, Any]:
+        """Cierra la caja activa, registrando fecha, hora y saldo final."""
+        now = datetime.now()
+        fecha = now.strftime("%Y-%m-%d")
+        hora = now.strftime("%H:%M:%S")
+
+        saldo = self.calcular_saldo_actual(caja_id)
+        saldo_final_efectivo = saldo['efectivo_uyu']
+
+        sql = """
+            UPDATE cajas
+            SET estado = 'cerrada',
+                fecha_cierre = ?,
+                hora_cierre = ?,
+                usuario_id_cierra = ?,
+                saldo_final_pesos = ?
+            WHERE id = ?
+        """
+        self.db.ejecutar_query(sql, (
+            fecha, hora, usuario_id, saldo_final_efectivo, caja_id
+        ))
+        print(f">>> SE EJECUTÓ CIERRE PARA CAJA ID: {caja_id}")
+
+        return {
+            'caja_id': caja_id,
+            'fecha_cierre': fecha,
+            'hora_cierre': hora,
+            'saldo': saldo,
+        }
+    
+    def obtener_ultimo_saldo_cerrado(self) -> float:
+        """Obtiene el saldo final de la última caja cerrada para sugerirlo como fondo inicial."""
+        sql = "SELECT saldo_final_pesos FROM cajas WHERE estado = 'cerrada' ORDER BY id DESC LIMIT 1"
+        row = self.db.ejecutar_query(sql, ()).fetchone()
+        return row['saldo_final_pesos'] if row and row['saldo_final_pesos'] else 0.0
