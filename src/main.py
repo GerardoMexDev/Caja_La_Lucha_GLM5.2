@@ -106,6 +106,7 @@ class CajaLaLuchaApp(ctk.CTk):
             caja=self.current_caja,
             movimiento_controller=self.movimiento_controller,
             caja_controller=self.caja_controller,
+            user_controller=self.user_controller,
             on_logout=self._on_logout,
             on_caja_cerrada=self._on_caja_cerrada,
         )

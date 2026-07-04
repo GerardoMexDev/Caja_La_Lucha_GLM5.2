@@ -159,3 +159,23 @@ class UserController:
             }
             for row in rows
         ]
+    def toggle_user_status(self, user_id: int) -> Tuple[bool, str]:
+        """Alterna el estado activo/inactivo de un usuario."""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return (False, "Usuario no encontrado.")
+        
+        if user['es_admin'] == 1 and user['activo'] == 1:
+            admins_activos = self.db.ejecutar_query(
+                "SELECT COUNT(*) as c FROM usuarios WHERE es_admin = 1 AND activo = 1 AND id != ?", 
+                (user_id,)
+            ).fetchone()['c']
+            if admins_activos == 0:
+                return (False, "No se puede desactivar al unico administrador.")
+
+        nuevo_estado = 0 if user['activo'] == 1 else 1
+        sql = "UPDATE usuarios SET activo = ? WHERE id = ?"
+        self.db.ejecutar_query(sql, (nuevo_estado, user_id))
+        
+        estado_texto = "activado" if nuevo_estado == 1 else "desactivado"
+        return (True, f"Usuario {estado_texto} correctamente.")

@@ -8,6 +8,7 @@ from typing import Dict, Any, Callable, Optional
 
 from controllers.movimiento_controller import MovimientoController
 from controllers.caja_controller import CajaController
+from controllers.user_controller import UserController
 from utils.constants import (
     COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_BG,
     COLOR_CARD, COLOR_TEXT, COLOR_ERROR
@@ -24,6 +25,7 @@ class DashboardFrame(ctk.CTkFrame):
         caja: Dict[str, Any],
         movimiento_controller: MovimientoController,
         caja_controller: CajaController,
+        user_controller: UserController,
         on_logout: Callable[[], None],
         on_caja_cerrada: Callable[[], None],
     ) -> None:
@@ -32,6 +34,7 @@ class DashboardFrame(ctk.CTkFrame):
         self.caja = caja
         self.movimiento_controller = movimiento_controller
         self.caja_controller = caja_controller
+        self.user_controller = user_controller
         self.on_logout = on_logout
         self.on_caja_cerrada = on_caja_cerrada
         
@@ -80,6 +83,16 @@ class DashboardFrame(ctk.CTkFrame):
         )
         self.btn_resumen.pack(fill="x", padx=20, pady=10)
 
+        if self.usuario['es_admin'] == 1:
+            self.btn_usuarios = ctk.CTkButton(
+                self.sidebar, text="👥 Usuarios", height=40,
+                font=ctk.CTkFont(size=13),
+                fg_color="transparent", text_color=COLOR_TEXT,
+                border_width=2, border_color="#34495e", hover_color="#1c2833",
+                corner_radius=10, command=self._show_usuarios
+            )
+            self.btn_usuarios.pack(fill="x", padx=20, pady=10)
+
         # Separador antes de acciones finales
         ctk.CTkFrame(self.sidebar, height=2, fg_color="#2c3e50").pack(fill="x", padx=20, pady=(15, 10))
 
@@ -122,13 +135,15 @@ class DashboardFrame(ctk.CTkFrame):
         self.btn_movimientos.configure(fg_color=COLOR_SECONDARY, text_color="white", border_width=0)
         self.btn_resumen.configure(fg_color="transparent", text_color=COLOR_TEXT, border_width=2, border_color="#34495e")
         self.btn_cerrar_caja.configure(fg_color="#7f8c8d", text_color="white", border_width=0)
+        
+        if hasattr(self, 'btn_usuarios'):
+            self.btn_usuarios.configure(fg_color="transparent", text_color=COLOR_TEXT, border_width=2, border_color="#34495e")
 
     def _show_movimientos(self) -> None:
         from views.movimientos_view import MovimientosFrame
         self._clear_content()
         self._reset_sidebar_buttons()
         
-        # Resaltar botón activo
         self.btn_movimientos.configure(fg_color="transparent", text_color=COLOR_ACCENT, border_width=2, border_color=COLOR_ACCENT)
         
         self._content_frame = MovimientosFrame(
@@ -144,13 +159,28 @@ class DashboardFrame(ctk.CTkFrame):
         self._clear_content()
         self._reset_sidebar_buttons()
         
-        # Resaltar botón activo
         self.btn_resumen.configure(fg_color="transparent", text_color=COLOR_ACCENT, border_width=2, border_color=COLOR_ACCENT)
         
         self._content_frame = ResumenFrame(
             parent=self.content_area,
             caja=self.caja,
             movimiento_controller=self.movimiento_controller
+        )
+        self._content_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+    def _show_usuarios(self) -> None:
+        from views.usuarios_view import UsuariosFrame
+        self._clear_content()
+        self._reset_sidebar_buttons()
+
+        if hasattr(self, 'btn_usuarios'):
+            self.btn_usuarios.configure(fg_color="transparent", text_color=COLOR_ACCENT, border_width=2, border_color=COLOR_ACCENT)
+
+        self._content_frame = UsuariosFrame(
+            parent=self.content_area,
+            user_controller=self.user_controller,
+            usuario_actual=self.usuario,
+            on_back=self._show_movimientos
         )
         self._content_frame.pack(fill="both", expand=True, padx=20, pady=20)
 

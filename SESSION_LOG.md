@@ -85,3 +85,32 @@ Próximos pasos (Sesión 5):
 
 Generación de Reportes (PDF/WhatsApp).
 Gestión de usuarios (Altas/Bajas) para el administrador.
+
+
+SESIÓN 5: Gestión de Usuarios y Migración a Python 3.12Fecha: 2024-07-03 | Estado: Completada
+
+Lo que se hizo:
+
+Task 13: Implementado toggle_user_status() en user_controller.py. Alterna estado activo/inactivo con protección para no dejar el sistema sin admin.
+Task 14: Creado usuarios_view.py. Pantalla con formulario de alta de usuarios y tabla scrolleable con acciones por usuario.
+Task 15: Modificado dashboard_view.py. Se agregó botón "👥 Usuarios" en el sidebar, visible solo si es_admin == 1.
+Task 16: Actualizado main.py para inyectar user_controller en el dashboard.
+Decisiones de Diseño:
+
+Se decidió posponer la generación de PDF para la próxima sesión y optar por generar Excel (usando openpyxl), por mayor estabilidad y para que el usuario lo exporte a PDF fuera del programa.
+Se intentó migrar el entorno virtual a Python 3.12 para evitar los bugs de renderizado de CustomTkinter en Python 3.14, pero el entorno siguió anclado a la 3.14. El código es 100% compatible con 3.12 para cuando se realice la migración definitiva.
+Lecciones aprendidas:
+
+LECCIÓN: Al usar cat >> archivo.py << 'EOF' en Git Bash, se pueden agregar métodos al final de un archivo sin riesgo de romper la indentación del archivo original. Útil para cambios pequeños.
+RECORDATORIO: El archivo nul de Windows sigue existiendo en el proyecto. Hacer git add . falla. Se debe hacer git add archivo por archivo.
+Estado actual del sistema:
+
+Login: Funcional.
+Apertura de Caja: Funcional.
+Registro de Movimientos: Funcional.
+Resumen del Día: Funcional.
+Cierre de Caja: Funcional.
+Gestión de Usuarios: Funcional (Solo Admin).
+Próximos pasos (Sesión 6):
+
+Generación de Reportes en formato Excel (Instalación de openpyxl).
