@@ -1,9 +1,13 @@
 """
 Vista de Resumen del Día.
-Muestra totales por moneda, efectivo vs banco y últimos movimientos.
+Muestra totales por moneda, efectivo vs banco, últimos movimientos, exporta a Excel y envía por WhatsApp.
 """
 
+import os
+import webbrowser
+import urllib.parse
 import customtkinter as ctk
+from tkinter import messagebox, simpledialog
 from typing import Dict, Any
 
 from controllers.movimiento_controller import MovimientoController
@@ -11,6 +15,7 @@ from utils.constants import (
     COLOR_ACCENT, COLOR_BG, COLOR_CARD, COLOR_TEXT,
     COLOR_SECONDARY, COLOR_SUCCESS, COLOR_ERROR
 )
+from utils.excel_generator import generar_reporte_diario_excel
 
 
 class ResumenFrame(ctk.CTkFrame):
@@ -76,9 +81,99 @@ class ResumenFrame(ctk.CTkFrame):
         ctk.CTkLabel(card_banco, text=f"${resumen['banco_uyu']:,.2f}", font=ctk.CTkFont(size=32, weight="bold"), text_color=COLOR_TEXT).pack(padx=20, anchor="w")
         ctk.CTkLabel(card_banco, text="Tarjetas, transferencias y cheques", font=ctk.CTkFont(size=12), text_color="#7f8c8d").pack(padx=20, anchor="w", pady=(5, 20))
 
+        # --- CONTENEDOR DE BOTONES ---
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(pady=(20, 5))
+
+        ctk.CTkButton(
+            btn_frame,
+            text="📊 Exportar a Excel",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color=COLOR_SUCCESS,
+            hover_color="#27ae60",
+            width=220,
+            height=40,
+            command=self._exportar_excel
+        ).pack(side="left", padx=10)
+
+        # NUEVO: Botón de WhatsApp
+        ctk.CTkButton(
+            btn_frame,
+            text="📲 Avisar al Jefe",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color="#25D366", # Color oficial WhatsApp
+            hover_color="#128C7E",
+            width=220,
+            height=40,
+            command=self._enviar_whatsapp
+        ).pack(side="left", padx=10)
+
         # Pie de página
         ctk.CTkLabel(
             self, 
             text=f"Fondo inicial de caja: ${resumen['fondo_inicial']:,.2f} UYU",
             font=ctk.CTkFont(size=12), text_color="#5d6d7e"
-        ).pack(pady=(15, 0))
+        ).pack(pady=(10, 0))
+
+    def _exportar_excel(self) -> None:
+        """Obtiene los datos, genera el Excel y muestra un cuadro de diálogo."""
+        try:
+            movimientos = self.movimiento_controller.obtener_movimientos_del_dia(self.caja['id'])
+            resumen = self.movimiento_controller.obtener_resumen_del_dia(self.caja['id'])
+            
+            filepath = generar_reporte_diario_excel(movimientos, resumen, self.caja)
+            
+            messagebox.showinfo(
+                "Exportación Exitosa",
+                f"El reporte fue guardado exitosamente en:\n\n{filepath}"
+            )
+        except Exception as e:
+            messagebox.showerror(
+                "Error al Exportar",
+                f"No se pudo generar el archivo Excel:\n{str(e)}"
+            )
+
+    def _enviar_whatsapp(self) -> None:
+        """Arma un mensaje simple de resumen y abre WhatsApp Web."""
+        try:
+            resumen = self.movimiento_controller.obtener_resumen_del_dia(self.caja['id'])
+            
+            # Extraer datos para el mensaje simple
+            ingresos = resumen['UYU']['ingresos']
+            egresos = resumen['UYU']['egresos']
+            diferencia = ingresos - egresos
+            fondo = resumen['fondo_inicial']
+            resultado = resumen['efectivo_uyu']
+            fecha = self.caja['fecha_apertura']
+
+            # Formatear el mensaje (sin tildes para evitar problemas en algunas URLs)
+            mensaje = (
+                f"🟢 *RESUMEN DE CAJA - LA LUCHA* 🟢\n"
+                f"📅 Fecha: {fecha}\n\n"
+                f"➕ Ingresos: ${ingresos:,.2f}\n"
+                f"➖ Egresos: ${egresos:,.2f}\n"
+                f"📊 Diferencia: ${diferencia:,.2f}\n\n"
+                f"💵 Fondo inicial: ${fondo:,.2f}\n"
+                f"💰 Resultado en fondo: ${resultado:,.2f}"
+            )
+
+            # Pedir número de teléfono (con código de país, ej: 59899123456)
+            numero = simpledialog.askstring(
+                "WhatsApp",
+                "Ingrese el número del jefe (con código de país, sin +):\nEj: 59899123456",
+                parent=self.winfo_toplevel()
+            )
+
+            if numero:
+                # Limpiar el número (quitar espacios, guiones o signos +)
+                numero_limpio = numero.replace(" ", "").replace("-", "").replace("+", "")
+                
+                # Codificar el mensaje para que la URL no se rompa
+                mensaje_codificado = urllib.parse.quote(mensaje)
+                url = f"https://web.whatsapp.com/send?phone={numero_limpio}&text={mensaje_codificado}"
+                
+                # Abrir en el navegador
+                webbrowser.open(url)
+                
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir WhatsApp:\n{str(e)}")

@@ -165,3 +165,41 @@ Task 7: dashboard_view.py — sidebar con Movimientos / Resumen
 Task 8: movimientos_view.py — formulario + tabla
 Task 9: resumen_view.py — totales y últimos movimientos
 El ledger de progreso está en .superpowers/sdd/progress.md y el plan en docs/superpowers/plans/2026-07-01-sesion3-dashboard.md.
+
+
+
+
+SESIÓN 8: Módulo de Empleados, Adelantos y Viáticos
+Fecha: 2024-07-0X | Estado: Completada
+
+Lo que se hizo:
+
+Task 17: Cambio en el diccionario de Categorías. compra_tiendas pasó a ser compra_insumos. Se agregó la categoría viatico (definida como gasto general de la operación, no asociado a un empleado específico).
+Task 18: Creada tabla empleados en database.py. Columnas: id, nombre, sueldo_semanal, activo.
+Task 19: Creado empleado_controller.py con lógica de alta de empleados y obtención de listas.
+Task 20: Modificado movimientos_view.py de forma profunda. Se implementó un menú desplegable dinámico: cuando el usuario elige la categoría adelanto_sueldo, aparece mágicamente un selector cargado con los empleados activos de la base de datos. En cualquier otra categoría, el selector se oculta.
+Task 21: Creado empleados_view.py. Pantalla de gestión exclusiva para administradores con formulario de alta (Nombre, Sueldo Semanal) y tabla para activar/desactivar empleados.
+Task 22: Inyectado empleado_controller en main.py y dashboard_view.py. Se agregó botón "👨‍🔧 Empleados" en el sidebar (visible solo para admin).
+Task 23: Agregados métodos en movimiento_controller.py para extraer adelantos y viáticos filtrados por rango de fechas (obtener_adelantos_por_rango, obtener_viaticos_por_rango).
+Task 24: Creada 4ta pestaña en historial_view.py llamada "Adelantos y Viáticos". Permite seleccionar fechas "Desde" y "Hasta", y renderiza dos tablas separadas con sus totales individuales.
+
+Lecciones aprendidas:
+REGLA DE NEGOCIO: Los adelantos de sueldo sí o sí deben estar atados a un empleado de la base de datos (para futuras liquidaciones). Los viáticos son gastos operativos puros y no requieren asignación.
+REGLA DE CTk: Cuando se agregan campos dinámicos que aparecen/desaparecen (como el menú de empleados), es más seguro manejar las filas (grid) manualmente usando .grid() y .grid_remove() en lugar de pack, para no desplazar los botones de abajo de forma impredecible.
+
+Estado actual del sistema:
+Login: Funcional.
+Apertura de Caja: Funcional.
+Registro de Movimientos: Funcional (Con selector inteligente de empleados).
+Resumen del Día: Funcional.
+Cierre de Caja: Funcional.
+Gestión de Usuarios: Funcional (Solo Admin).
+Gestión de Empleados: Funcional (Solo Admin).
+Exportación a Excel: Funcional.
+Exportación a WhatsApp: Funcional.
+Historial Diario/Semanal/Mensual: Funcional.
+Reportes de Adelantos y Viáticos: Funcional.
+
+Próximos pasos (Sesión 9):
+Liquidación de sueldos semanales (Tabla que cruce Sueldo Base - Adelantos del periodo = Pago final).
+Gráficas comparativas de Adelantos/Viáticos por semanas en el historial mensual.

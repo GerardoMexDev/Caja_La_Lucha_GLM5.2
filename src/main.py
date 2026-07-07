@@ -1,5 +1,5 @@
 import sys
-import os  # NUEVO
+import os
 import customtkinter as ctk
 from typing import Dict, Any, Optional
 
@@ -7,6 +7,7 @@ from models.database import DatabaseManager
 from controllers.user_controller import UserController
 from controllers.caja_controller import CajaController
 from controllers.movimiento_controller import MovimientoController
+from controllers.empleado_controller import EmpleadoController  # NUEVO
 from views.login_view import LoginFrame
 from utils.constants import COLOR_BG
 
@@ -17,15 +18,16 @@ class CajaLaLuchaApp(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
 
-        # NUEVO: Forzar que la BD siempre esté en la raíz del proyecto
+        # Forzar que la BD siempre esté en la raíz del proyecto
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         db_path = os.path.join(BASE_DIR, "..", "lucha_caja.db")
         print(f">>> CONECTADO A LA BD: {db_path}")
 
-        self.db = DatabaseManager(db_path) # MODIFICADO: antes era DatabaseManager()
+        self.db = DatabaseManager(db_path)
         self.user_controller = UserController(self.db)
         self.caja_controller = CajaController(self.db)
         self.movimiento_controller = MovimientoController(self.db)
+        self.empleado_controller = EmpleadoController(self.db)  # NUEVO
         self.user_controller.ensure_admin_exists()
 
         self.current_user: Optional[Dict[str, Any]] = None
@@ -78,7 +80,6 @@ class CajaLaLuchaApp(ctk.CTk):
         self.title("Caja La Lucha — Apertura de Jornada")
         self._center(500, 420)
         
-        # NUEVO: Obtener el saldo de la última caja cerrada
         fondo_sugerido = self.caja_controller.obtener_ultimo_saldo_cerrado()
         
         self._active_frame = PortalFrame(
@@ -86,7 +87,7 @@ class CajaLaLuchaApp(ctk.CTk):
             usuario=self.current_user,
             caja_controller=self.caja_controller,
             on_caja_abierta=self._on_caja_abierta,
-            fondo_sugerido=fondo_sugerido,  # NUEVO
+            fondo_sugerido=fondo_sugerido,
         )
         self._active_frame.pack(fill="both", expand=True)
 
@@ -107,13 +108,13 @@ class CajaLaLuchaApp(ctk.CTk):
             movimiento_controller=self.movimiento_controller,
             caja_controller=self.caja_controller,
             user_controller=self.user_controller,
+            empleado_controller=self.empleado_controller,  # NUEVO
             on_logout=self._on_logout,
             on_caja_cerrada=self._on_caja_cerrada,
         )
         self._active_frame.pack(fill="both", expand=True)
 
     def _on_caja_cerrada(self) -> None:
-        """Se ejecuta tras cerrar caja: vuelve al login."""
         self.current_user = None
         self.current_caja = None
         self.minsize(0, 0)

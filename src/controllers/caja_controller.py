@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import Optional, Dict, Any
+from datetime import datetime, timedelta
+from typing import Optional, Dict, Any, List, Tuple
 from models.database import DatabaseManager
 
 
@@ -72,39 +72,94 @@ class CajaController:
 
         return result
 
-
     def cerrar_caja(self, caja_id: int, usuario_id: int) -> Dict[str, Any]:
-        """Cierra la caja activa, registrando fecha, hora y saldo final."""
         now = datetime.now()
         fecha = now.strftime("%Y-%m-%d")
         hora = now.strftime("%H:%M:%S")
-
         saldo = self.calcular_saldo_actual(caja_id)
         saldo_final_efectivo = saldo['efectivo_uyu']
 
         sql = """
             UPDATE cajas
-            SET estado = 'cerrada',
-                fecha_cierre = ?,
-                hora_cierre = ?,
-                usuario_id_cierra = ?,
-                saldo_final_pesos = ?
+            SET estado = 'cerrada', fecha_cierre = ?, hora_cierre = ?,
+                usuario_id_cierra = ?, saldo_final_pesos = ?
             WHERE id = ?
         """
-        self.db.ejecutar_query(sql, (
-            fecha, hora, usuario_id, saldo_final_efectivo, caja_id
-        ))
-        print(f">>> SE EJECUTÓ CIERRE PARA CAJA ID: {caja_id}")
-
-        return {
-            'caja_id': caja_id,
-            'fecha_cierre': fecha,
-            'hora_cierre': hora,
-            'saldo': saldo,
-        }
+        self.db.ejecutar_query(sql, (fecha, hora, usuario_id, saldo_final_efectivo, caja_id))
+        return {'caja_id': caja_id, 'fecha_cierre': fecha, 'hora_cierre': hora, 'saldo': saldo}
     
     def obtener_ultimo_saldo_cerrado(self) -> float:
-        """Obtiene el saldo final de la última caja cerrada para sugerirlo como fondo inicial."""
         sql = "SELECT saldo_final_pesos FROM cajas WHERE estado = 'cerrada' ORDER BY id DESC LIMIT 1"
         row = self.db.ejecutar_query(sql, ()).fetchone()
         return row['saldo_final_pesos'] if row and row['saldo_final_pesos'] else 0.0
+
+    # =====================================================================
+    # NUEVOS MÉTODOS PARA HISTORIAL (Sesión 7)
+    # =====================================================================
+
+    @staticmethod
+    def obtener_rango_semana(fecha_str: str) -> Tuple[str, str]:
+        """Dado un fecha cualquiera, devuelve el Lunes y el Sábado de esa semana."""
+        dt = datetime.strptime(fecha_str, "%Y-%m-%d")
+        lunes = dt - timedelta(days=dt.weekday()) # Monday is 0
+        sabado = lunes + timedelta(days=5)
+        return lunes.strftime("%Y-%m-%d"), sabado.strftime("%Y-%m-%d")
+
+    def obtener_cajas_por_fecha(self, fecha: str) -> List[Dict[str, Any]]:
+        """Devuelve las cajas cerradas de un día específico."""
+        sql = """
+            SELECT c.id, c.fecha_apertura, c.hora_apertura, c.hora_cierre, 
+                   c.fondo_inicial_pesos, c.saldo_final_pesos, u.nombre_usuario
+            FROM cajas c
+            JOIN usuarios u ON c.usuario_id_abre = u.id
+            WHERE c.estado = 'cerrada' AND c.fecha_apertura = ?
+            ORDER BY c.hora_apertura DESC
+        """
+        rows = self.db.ejecutar_query(sql, (fecha,)).fetchall()
+        return [dict(row) for row in rows]
+
+    def obtener_resumen_por_rango(self, fecha_inicio: str, fecha_fin: str) -> Dict[str, Any]:
+        """Calcula ingresos, egresos, efectivo y banco en un rango de fechas."""
+        sql = """
+            SELECT tipo, moneda, monto, es_banco 
+            FROM movimientos m
+            JOIN cajas c ON m.caja_id = c.id
+            WHERE c.estado = 'cerrada' AND c.fecha_apertura BETWEEN ? AND ?
+        """
+        movimientos = self.db.ejecutar_query(sql, (fecha_inicio, fecha_fin)).fetchall()
+        
+        resumen = {
+            'UYU': {'ingresos': 0.0, 'egresos': 0.0},
+            'USD': {'ingresos': 0.0, 'egresos': 0.0},
+            'BRL': {'ingresos': 0.0, 'egresos': 0.0},
+            'banco_uyu': 0.0,
+        }
+
+        for mov in movimientos:
+            moneda, monto, tipo, es_banco = mov['moneda'], mov['monto'], mov['tipo'], mov['es_banco']
+            if tipo == 'ingreso':
+                resumen[moneda]['ingresos'] += monto
+                if moneda == 'UYU' and es_banco == 1: resumen['banco_uyu'] += monto
+            else:
+                resumen[moneda]['egresos'] += monto
+                if moneda == 'UYU' and es_banco == 1: resumen['banco_uyu'] -= monto
+
+        return resumen
+
+    def obtener_datos_grafico_mensual(self, anio: int, mes: int) -> List[Dict[str, Any]]:
+        """Devuelve los totales de UYU agrupados por número de semana para un mes dado."""
+        # Formatear mes para coincidir con YYYY-MM
+        mes_str = f"{anio}-{mes:02d}"
+        sql = """
+            SELECT 
+                strftime('%W', c.fecha_apertura) AS semana,
+                SUM(CASE WHEN m.tipo = 'ingreso' AND m.moneda = 'UYU' THEN m.monto ELSE 0 END) AS ingresos_uyu,
+                SUM(CASE WHEN m.tipo = 'egreso' AND m.moneda = 'UYU' THEN m.monto ELSE 0 END) AS egresos_uyu
+            FROM movimientos m
+            JOIN cajas c ON m.caja_id = c.id
+            WHERE c.estado = 'cerrada' AND c.fecha_apertura LIKE ?
+            GROUP BY semana
+            ORDER BY semana
+        """
+        rows = self.db.ejecutar_query(sql, (f"{mes_str}%",)).fetchall()
+        return [dict(row) for row in rows]
