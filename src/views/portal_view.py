@@ -62,6 +62,17 @@ class PortalFrame(ctk.CTkFrame):
 
         ctk.CTkFrame(card, height=2, fg_color="#2c3e50").pack(fill="x", padx=40, pady=(0, 20))
 
+        # ALERTA DE CAJA ÚNICA DIARIA
+        if self.caja_controller.existe_caja_cerrada_hoy():
+            ctk.CTkLabel(
+                card,
+                text="⚠️ ADVERTENCIA: Ya existe una caja cerrada para el día de hoy.\nEl sistema permite abrir otra, pero se recomienda UNA SOLA caja por día.",
+                font=ctk.CTkFont(size=12, weight="bold"),
+                text_color=COLOR_ERROR,
+                justify="center",
+                wraplength=350
+            ).pack(pady=(0, 15))
+
         ctk.CTkLabel(
             card, text="Fondo Inicial de Caja (UYU)",
             font=ctk.CTkFont(size=13, weight="bold"),

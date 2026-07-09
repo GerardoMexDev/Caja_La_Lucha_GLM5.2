@@ -163,3 +163,10 @@ class CajaController:
         """
         rows = self.db.ejecutar_query(sql, (f"{mes_str}%",)).fetchall()
         return [dict(row) for row in rows]
+
+    def existe_caja_cerrada_hoy(self) -> bool:
+        """Verifica si ya se cerró al menos una caja en la fecha de hoy."""
+        today = datetime.now().strftime("%Y-%m-%d")
+        sql = "SELECT id FROM cajas WHERE fecha_apertura = ? AND estado = 'cerrada' LIMIT 1"
+        row = self.db.ejecutar_query(sql, (today,)).fetchone()
+        return row is not None

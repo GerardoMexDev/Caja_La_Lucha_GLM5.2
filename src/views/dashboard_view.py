@@ -156,6 +156,14 @@ class DashboardFrame(ctk.CTkFrame):
         self.content_area = ctk.CTkFrame(self, fg_color=COLOR_BG, corner_radius=0)
         self.content_area.pack(side="right", fill="both", expand=True)
 
+
+        # Footer MazDesign (flotante esquina inferior derecha)
+        ctk.CTkLabel(
+            self, text="Desarrollado por MazDesign",
+            font=ctk.CTkFont(size=11), text_color="#34495e"
+        ).place(relx=0.99, rely=0.99, anchor="se")
+
+
     def _clear_content(self) -> None:
         if self._content_frame:
             self._content_frame.destroy()

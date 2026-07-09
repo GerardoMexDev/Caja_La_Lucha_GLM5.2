@@ -3,7 +3,9 @@ Vista de Login.
 Pantalla principal de autenticación del sistema.
 """
 
+import os
 import customtkinter as ctk
+from PIL import Image
 from typing import Optional, Callable, Dict, Any
 from controllers.user_controller import UserController
 
@@ -91,14 +93,21 @@ class LoginFrame(ctk.CTkFrame):
             self.main_frame,
             fg_color="transparent"
         )
-        logo_frame.pack(pady=(30, 10))
+        logo_frame.pack(pady=(7, 2))
 
-        # Logo como label estilizado
+        # Cargar imagen del logo desde assets
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        logo_path = os.path.abspath(os.path.join(current_dir, "..", "assets", "Logo_La_Lucha.png"))
+        
+        logo_image = ctk.CTkImage(
+            light_image=Image.open(logo_path),
+            size=(120, 120)
+        )
+
         self.logo_label = ctk.CTkLabel(
             logo_frame,
-            text="💰",
-            font=ctk.CTkFont(size=60),
-            text_color=self.COLOR_ACCENT
+            image=logo_image,
+            text=""
         )
         self.logo_label.pack()
 
@@ -251,14 +260,15 @@ class LoginFrame(ctk.CTkFrame):
 
     def _create_footer(self) -> None:
         """Crea el pie de página con información del sistema."""
-        self.footer_label = ctk.CTkLabel(
-            self.main_frame,
-            text="v1.0.0 | Sistema Offline",
-            font=ctk.CTkFont(size=11),
-            text_color="#5d6d7e"
-        )
-        self.footer_label.pack(side="bottom", pady=(0, 15))
-
+        import tkinter as tk
+        # Se usa tk.Label nativo para que NO robe los clicks del botón de login
+        tk.Label(
+            self,
+            text="Desarrollado por MazDesign | v1.0.0",
+            bg=self.COLOR_BG,
+            fg="#5d6d7e",
+            font=("Helvetica", 11)
+        ).place(relx=0.5, rely=0.98, anchor="s")
     def _bind_events(self) -> None:
         """Enlaza eventos de teclado."""
         # Enter en campo usuario pasa a contraseña
