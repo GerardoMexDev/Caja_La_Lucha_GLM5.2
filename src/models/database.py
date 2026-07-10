@@ -14,11 +14,12 @@ class DatabaseManager:
         self.conn: Optional[sqlite3.Connection] = None
         self._conectar()
         self._crear_tablas()
+        self._migrar_campos()
 
     def _conectar(self) -> None:
         try:
             self.conn = sqlite3.connect(self.db_name)
-            self.conn.row_factory = sqlite3.Row 
+            self.conn.row_factory = sqlite3.Row
         except sqlite3.Error as e:
             print(f"Error crítico al conectar a la base de datos: {e}")
             raise
@@ -73,7 +74,6 @@ class DatabaseManager:
         );
         """
 
-        # NUEVA TABLA: Empleados
         sql_empleados = """
         CREATE TABLE IF NOT EXISTS empleados (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,8 +84,54 @@ class DatabaseManager:
         );
         """
 
-        cursor.executescript(sql_usuarios + sql_cajas + sql_movimientos + sql_empleados)
+        sql_proveedores = """
+        CREATE TABLE IF NOT EXISTS proveedores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT UNIQUE NOT NULL,
+            telefono TEXT,
+            email TEXT,
+            direccion TEXT,
+            activo INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+        );
+        """
+
+        sql_facturas = """
+        CREATE TABLE IF NOT EXISTS facturas_proveedores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            proveedor_id INTEGER NOT NULL,
+            descripcion TEXT NOT NULL,
+            fecha_compra TEXT NOT NULL,
+            monto_base REAL NOT NULL,
+            iva_porcentaje REAL NOT NULL DEFAULT 0.0,
+            iva_monto REAL NOT NULL DEFAULT 0.0,
+            total REAL NOT NULL,
+            moneda TEXT NOT NULL DEFAULT 'UYU',
+            fecha_pago TEXT,
+            estado TEXT NOT NULL DEFAULT 'pendiente',
+            observaciones TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+            FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
+        );
+        """
+
+        cursor.executescript(
+            sql_usuarios + sql_cajas + sql_movimientos +
+            sql_empleados + sql_proveedores + sql_facturas
+        )
         self.conn.commit()
+
+    def _migrar_campos(self) -> None:
+        """Agrega columnas faltantes a tablas existentes (migraciones en vivo)."""
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("SELECT moneda FROM facturas_proveedores LIMIT 1")
+        except sqlite3.OperationalError:
+            cursor.execute(
+                "ALTER TABLE facturas_proveedores ADD COLUMN moneda TEXT NOT NULL DEFAULT 'UYU'"
+            )
+            self.conn.commit()
 
     def cerrar_conexion(self) -> None:
         if self.conn:
@@ -100,6 +146,7 @@ class DatabaseManager:
         cursor.execute(sql, parametros)
         self.conn.commit()
         return cursor
+
 
 if __name__ == "__main__":
     print("Inicializando base de datos de prueba...")

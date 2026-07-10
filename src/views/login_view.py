@@ -13,14 +13,8 @@ from controllers.user_controller import UserController
 class LoginFrame(ctk.CTkFrame):
     """
     Ventana de login del sistema Caja La Lucha.
-
-    Attributes:
-        user_controller: Controlador de usuarios para autenticación.
-        on_login_success: Callback a ejecutar al login exitoso.
-        _login_attempts: Contador de intentos fallidos.
     """
 
-    # Configuración de colores
     COLOR_PRIMARY = "#1a5276"
     COLOR_SECONDARY = "#2980b9"
     COLOR_ACCENT = "#e67e22"
@@ -38,14 +32,6 @@ class LoginFrame(ctk.CTkFrame):
         user_controller: UserController,
         on_login_success: Callable[[Dict[str, Any]], None]
     ) -> None:
-        """
-        Inicializa el frame de login.
-
-        Args:
-            parent: Parent widget.
-            user_controller: Controlador de usuarios.
-            on_login_success: Función callback para login exitoso.
-        """
         super().__init__(parent, fg_color=self.COLOR_BG)
 
         self.user_controller = user_controller
@@ -57,8 +43,7 @@ class LoginFrame(ctk.CTkFrame):
         self._bind_events()
 
     def _create_widgets(self) -> None:
-        """Crea todos los widgets de la interfaz."""
-        # Contenedor principal con padding
+        # Contenedor principal con padding reducido arriba
         self.main_frame = ctk.CTkFrame(
             self,
             fg_color=self.COLOR_CARD,
@@ -66,42 +51,31 @@ class LoginFrame(ctk.CTkFrame):
         )
         self.main_frame.pack(
             padx=30,
-            pady=30,
+            pady=(20, 45),  # Menos arriba, más abajo para dejar espacio al footer
             fill="both",
             expand=True
         )
 
-        # === LOGO/TÍTULO ===
         self._create_header()
-
-        # === CAMPOS DE LOGIN ===
         self._create_login_fields()
-
-        # === BOTÓN LOGIN ===
         self._create_login_button()
-
-        # === MENSAJE DE ESTADO ===
         self._create_status_message()
-
-        # === PIE DE PÁGINA ===
         self._create_footer()
 
     def _create_header(self) -> None:
-        """Crea el encabezado con logo y título."""
-        # Frame para el logo (círculo con ícono)
+        # Frame para el logo — padding mínimo
         logo_frame = ctk.CTkFrame(
             self.main_frame,
             fg_color="transparent"
         )
-        logo_frame.pack(pady=(7, 2))
+        logo_frame.pack(pady=(0, 0))  # Sin padding extra
 
-        # Cargar imagen del logo desde assets
         current_dir = os.path.dirname(os.path.abspath(__file__))
         logo_path = os.path.abspath(os.path.join(current_dir, "..", "assets", "Logo_La_Lucha.png"))
-        
+
         logo_image = ctk.CTkImage(
             light_image=Image.open(logo_path),
-            size=(120, 120)
+            size=(110, 110)  # Ligeramente más chico
         )
 
         self.logo_label = ctk.CTkLabel(
@@ -111,49 +85,43 @@ class LoginFrame(ctk.CTkFrame):
         )
         self.logo_label.pack()
 
-        # Título principal
         self.title_label = ctk.CTkLabel(
             self.main_frame,
             text="LA LUCHA - CAJA",
             font=ctk.CTkFont(
                 family="Helvetica",
-                size=28,
+                size=26,
                 weight="bold"
             ),
             text_color=self.COLOR_TEXT
         )
-        self.title_label.pack(pady=(5, 0))
+        self.title_label.pack(pady=(2, 0))
 
-        # Subtítulo
         self.subtitle_label = ctk.CTkLabel(
             self.main_frame,
             text="Sistema de Gestión de Caja",
             font=ctk.CTkFont(
                 family="Helvetica",
-                size=14
+                size=13
             ),
             text_color="#7f8c8d"
         )
-        self.subtitle_label.pack(pady=(0, 25))
+        self.subtitle_label.pack(pady=(0, 12))
 
-        # Línea separadora
         separator = ctk.CTkFrame(
             self.main_frame,
             height=2,
             fg_color="#2c3e50"
         )
-        separator.pack(fill="x", padx=40, pady=(0, 25))
+        separator.pack(fill="x", padx=40, pady=(0, 15))
 
     def _create_login_fields(self) -> None:
-        """Crea los campos de usuario y contraseña."""
-        # Frame para campos
         fields_frame = ctk.CTkFrame(
             self.main_frame,
             fg_color="transparent"
         )
         fields_frame.pack(fill="x", padx=40)
 
-        # Label y Entry para usuario
         self.username_label = ctk.CTkLabel(
             fields_frame,
             text="Usuario",
@@ -175,9 +143,8 @@ class LoginFrame(ctk.CTkFrame):
             text_color=self.COLOR_TEXT,
             placeholder_text_color="#5d6d7e"
         )
-        self.username_entry.pack(fill="x", pady=(0, 20))
+        self.username_entry.pack(fill="x", pady=(0, 15))
 
-        # Label y Entry para contraseña
         self.password_label = ctk.CTkLabel(
             fields_frame,
             text="Contraseña",
@@ -187,7 +154,6 @@ class LoginFrame(ctk.CTkFrame):
         )
         self.password_label.pack(fill="x", pady=(0, 5))
 
-        # Frame para contraseña y botón mostrar/ocultar
         password_frame = ctk.CTkFrame(
             fields_frame,
             fg_color="transparent"
@@ -209,7 +175,6 @@ class LoginFrame(ctk.CTkFrame):
         )
         self.password_entry.pack(side="left", fill="x", expand=True)
 
-        # Botón mostrar/ocultar contraseña
         self.toggle_password_btn = ctk.CTkButton(
             password_frame,
             text="👁",
@@ -226,7 +191,6 @@ class LoginFrame(ctk.CTkFrame):
         self.toggle_password_btn.pack(side="right", padx=(10, 0))
 
     def _create_login_button(self) -> None:
-        """Crea el botón de inicio de sesión."""
         self.login_button = ctk.CTkButton(
             self.main_frame,
             text="INICIAR SESIÓN",
@@ -244,11 +208,10 @@ class LoginFrame(ctk.CTkFrame):
         self.login_button.pack(
             fill="x",
             padx=40,
-            pady=(25, 0)
+            pady=(18, 0)
         )
 
     def _create_status_message(self) -> None:
-        """Crea el label para mensajes de estado."""
         self.status_label = ctk.CTkLabel(
             self.main_frame,
             text="",
@@ -256,34 +219,30 @@ class LoginFrame(ctk.CTkFrame):
             text_color=self.COLOR_TEXT,
             wraplength=350
         )
-        self.status_label.pack(pady=(15, 0))
+        self.status_label.pack(pady=(12, 0))
 
     def _create_footer(self) -> None:
-        """Crea el pie de página con información del sistema."""
         import tkinter as tk
-        # Se usa tk.Label nativo para que NO robe los clicks del botón de login
+        # rely=1.0 lo pone en el borde inferior absoluto (fondo azul)
         tk.Label(
             self,
             text="Desarrollado por MazDesign | v1.0.0",
             bg=self.COLOR_BG,
             fg="#5d6d7e",
             font=("Helvetica", 11)
-        ).place(relx=0.5, rely=0.98, anchor="s")
+        ).place(relx=0.5, rely=1.0, anchor="s")
+
     def _bind_events(self) -> None:
-        """Enlaza eventos de teclado."""
-        # Enter en campo usuario pasa a contraseña
         self.username_entry.bind(
             "<Return>",
             lambda e: self.password_entry.focus()
         )
-        # Enter en campo contraseña intenta login
         self.password_entry.bind(
             "<Return>",
             lambda e: self._handle_login()
         )
 
     def _toggle_password_visibility(self) -> None:
-        """Alterna la visibilidad de la contraseña."""
         self._show_password = not self._show_password
         if self._show_password:
             self.password_entry.configure(show="")
@@ -293,12 +252,9 @@ class LoginFrame(ctk.CTkFrame):
             self.toggle_password_btn.configure(text="👁")
 
     def _handle_login(self) -> None:
-        """Maneja el intento de login."""
-        # Obtener valores
         username = self.username_entry.get().strip()
         password = self.password_entry.get().strip()
 
-        # Validaciones
         if not username:
             self._show_error("Por favor, ingrese su usuario.")
             self.username_entry.focus()
@@ -309,7 +265,6 @@ class LoginFrame(ctk.CTkFrame):
             self.password_entry.focus()
             return
 
-        # Verificar intentos
         if self._login_attempts >= self.MAX_LOGIN_ATTEMPTS:
             self._show_error(
                 "Máximo de intentos alcanzado. "
@@ -319,34 +274,22 @@ class LoginFrame(ctk.CTkFrame):
             self.after(30000, self._reset_login_attempts)
             return
 
-        # Deshabilitar botón mientras procesa
         self.login_button.configure(state="disabled", text="VERIFICANDO...")
         self.status_label.configure(text="")
 
-        # Usar after para permitir actualización de UI
         self.after(100, lambda: self._attempt_login(username, password))
 
     def _attempt_login(self, username: str, password: str) -> None:
-        """
-        Intenta autenticar al usuario.
-
-        Args:
-            username: Nombre de usuario.
-            password: Contraseña en texto plano.
-        """
         user = self.user_controller.authenticate(username, password)
 
         if user:
-            # Login exitoso
             self._show_success(f"Bienvenido, {user['nombre_usuario']}!")
             self.login_button.configure(
                 text="✓ ACCESO CONCEDIDO",
                 fg_color=self.COLOR_SUCCESS
             )
-            # Esperar un momento y cerrar
             self.after(800, lambda: self.on_login_success(user))
         else:
-            # Login fallido
             self._login_attempts += 1
             attempts_left = self.MAX_LOGIN_ATTEMPTS - self._login_attempts
 
@@ -366,31 +309,18 @@ class LoginFrame(ctk.CTkFrame):
             self.password_entry.focus()
 
     def _show_error(self, message: str) -> None:
-        """
-        Muestra un mensaje de error.
-
-        Args:
-            message: Texto del error.
-        """
         self.status_label.configure(
             text=message,
             text_color=self.COLOR_ERROR
         )
 
     def _show_success(self, message: str) -> None:
-        """
-        Muestra un mensaje de éxito.
-
-        Args:
-            message: Texto del éxito.
-        """
         self.status_label.configure(
             text=message,
             text_color=self.COLOR_SUCCESS
         )
 
     def _reset_login_attempts(self) -> None:
-        """Resetea el contador de intentos de login."""
         self._login_attempts = 0
         self.login_button.configure(
             state="normal",
@@ -400,7 +330,6 @@ class LoginFrame(ctk.CTkFrame):
         self._show_success("Puede intentar nuevamente.")
 
     def reset_form(self) -> None:
-        """Resetea el formulario de login."""
         self.username_entry.delete(0, "end")
         self.password_entry.delete(0, "end")
         self.status_label.configure(text="")

@@ -40,110 +40,7 @@ class HistorialFrame(ctk.CTkFrame):
         self._setup_tab_mensual()
         self._setup_tab_adelantos()
 
-    # --- DISEÑO DE PESTAÑAS ---
-
-    def _setup_tab_diario(self) -> None:
-        self.tab_diario.grid_columnconfigure(0, weight=1)
-        self.tab_diario.grid_rowconfigure(1, weight=1)
-
-        frame_filtros = ctk.CTkFrame(self.tab_diario, fg_color="transparent")
-        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
-        frame_filtros.grid_columnconfigure(1, weight=1)
-
-        ctk.CTkLabel(frame_filtros, text="Fecha:", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 10))
-        
-        self.fecha_diario = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
-        self.fecha_diario.grid(row=0, column=1, sticky="w")
-        self.fecha_diario.insert(0, datetime.now().strftime("%Y-%m-%d"))
-
-        ctk.CTkButton(frame_filtros, text="Buscar", width=100, command=self._buscar_diario).grid(row=0, column=2, padx=(10, 0))
-
-        self.container_diario = ctk.CTkScrollableFrame(self.tab_diario, fg_color="transparent")
-        self.container_diario.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
-
-    def _setup_tab_semanal(self) -> None:
-        self.tab_semanal.grid_columnconfigure(0, weight=1)
-        self.tab_semanal.grid_rowconfigure(1, weight=1)
-
-        frame_filtros = ctk.CTkFrame(self.tab_semanal, fg_color="transparent")
-        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
-        frame_filtros.grid_columnconfigure(1, weight=1)
-
-        ctk.CTkLabel(frame_filtros, text="Fecha (para calcular la semana):", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 10))
-        
-        self.fecha_semanal = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
-        self.fecha_semanal.grid(row=0, column=1, sticky="w")
-        self.fecha_semanal.insert(0, datetime.now().strftime("%Y-%m-%d"))
-
-        ctk.CTkButton(frame_filtros, text="Buscar Semana", width=150, command=self._buscar_semanal).grid(row=0, column=2, padx=(10, 0))
-
-        self.container_semanal = ctk.CTkFrame(self.tab_semanal, fg_color="transparent")
-        self.container_semanal.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="nsew")
-        self.container_semanal.grid_columnconfigure((0, 1, 2), weight=1)
-
-    def _setup_tab_mensual(self) -> None:
-        self.tab_mensual.grid_columnconfigure(0, weight=1)
-        self.tab_mensual.grid_rowconfigure(1, weight=1)
-
-        frame_filtros = ctk.CTkFrame(self.tab_mensual, fg_color="transparent")
-        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
-
-        ctk.CTkLabel(frame_filtros, text="Año:", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 5))
-        self.anio_entry = ctk.CTkEntry(frame_filtros, width=80)
-        self.anio_entry.grid(row=0, column=1, padx=(0, 20))
-        self.anio_entry.insert(0, str(datetime.now().year))
-
-        ctk.CTkLabel(frame_filtros, text="Mes (1-12):", font=ctk.CTkFont(size=14)).grid(row=0, column=2, padx=(0, 5))
-        self.mes_entry = ctk.CTkEntry(frame_filtros, width=60)
-        self.mes_entry.grid(row=0, column=3, padx=(0, 20))
-        self.mes_entry.insert(0, str(datetime.now().month))
-
-        ctk.CTkButton(frame_filtros, text="Ver Gráfico", width=120, command=self._buscar_mensual).grid(row=0, column=4)
-
-        self.container_mensual = ctk.CTkFrame(self.tab_mensual, fg_color="transparent")
-        self.container_mensual.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
-
-    def _setup_tab_adelantos(self) -> None:
-        self.tab_adelantos.grid_columnconfigure(0, weight=1)
-        self.tab_adelantos.grid_rowconfigure(2, weight=1)
-
-        frame_filtros = ctk.CTkFrame(self.tab_adelantos, fg_color="transparent")
-        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
-
-        ctk.CTkLabel(frame_filtros, text="Desde:", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 5))
-        
-        self.fecha_desde_av = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
-        self.fecha_desde_av.grid(row=0, column=1, padx=(0, 15))
-        self.fecha_desde_av.insert(0, (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"))
-        self.fecha_desde_av.configure(cursor="hand2")
-        self.fecha_desde_av.bind("<Button-1>", lambda e: self._abrir_calendario(self.fecha_desde_av))
-
-        ctk.CTkLabel(frame_filtros, text="Hasta:", font=ctk.CTkFont(size=14)).grid(row=0, column=2, padx=(0, 5))
-        
-        self.fecha_hasta_av = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
-        self.fecha_hasta_av.grid(row=0, column=3, padx=(0, 15))
-        self.fecha_hasta_av.insert(0, datetime.now().strftime("%Y-%m-%d"))
-        self.fecha_hasta_av.configure(cursor="hand2")
-        self.fecha_hasta_av.bind("<Button-1>", lambda e: self._abrir_calendario(self.fecha_hasta_av))
-
-        ctk.CTkButton(frame_filtros, text="🔍 Buscar", width=120, command=self._buscar_adelantos_viaticos).grid(row=0, column=4)
-
-        frame_excel = ctk.CTkFrame(self.tab_adelantos, fg_color="transparent")
-        frame_excel.grid(row=1, column=0, pady=(0, 5), padx=10, sticky="e")
-
-        self.btn_excel_adelantos = ctk.CTkButton(
-            frame_excel, text="📥 Exportar Adelantos a Excel", width=250, height=35,
-            font=ctk.CTkFont(size=13, weight="bold"),
-            fg_color="#1e8449", hover_color="#196f3d",
-            command=self._exportar_adelantos_excel,
-            state="disabled"
-        )
-        self.btn_excel_adelantos.pack(side="right")
-
-        self.container_av = ctk.CTkScrollableFrame(self.tab_adelantos, fg_color="transparent")
-        self.container_av.grid(row=2, column=0, padx=10, pady=(0, 10), sticky="nsew")
-
-    # --- LÓGICA DE CALENDARIO ---
+    # --- CALENDARIO REUTILIZABLE ---
 
     def _abrir_calendario(self, entry_widget) -> None:
         top = Toplevel(self.winfo_toplevel())
@@ -171,6 +68,112 @@ class HistorialFrame(ctk.CTkFrame):
 
         ctk.CTkButton(top, text="Cancelar", width=100, fg_color="#7f8c8d", command=top.destroy).pack(pady=(0, 10))
 
+    # --- DISEÑO DE PESTAÑAS ---
+
+    def _setup_tab_diario(self) -> None:
+        self.tab_diario.grid_columnconfigure(0, weight=1)
+        self.tab_diario.grid_rowconfigure(1, weight=1)
+
+        frame_filtros = ctk.CTkFrame(self.tab_diario, fg_color="transparent")
+        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
+        frame_filtros.grid_columnconfigure(1, weight=1)
+
+        ctk.CTkLabel(frame_filtros, text="Fecha:", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 10))
+
+        self.fecha_diario = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
+        self.fecha_diario.grid(row=0, column=1, sticky="w")
+        self.fecha_diario.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        self.fecha_diario.configure(cursor="hand2")
+        self.fecha_diario.bind("<Button-1>", lambda e: self._abrir_calendario(self.fecha_diario))
+
+        ctk.CTkButton(frame_filtros, text="Buscar", width=100, command=self._buscar_diario).grid(row=0, column=2, padx=(10, 0))
+
+        self.container_diario = ctk.CTkScrollableFrame(self.tab_diario, fg_color="transparent")
+        self.container_diario.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
+
+    def _setup_tab_semanal(self) -> None:
+        self.tab_semanal.grid_columnconfigure(0, weight=1)
+        self.tab_semanal.grid_rowconfigure(1, weight=1)
+
+        frame_filtros = ctk.CTkFrame(self.tab_semanal, fg_color="transparent")
+        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
+        frame_filtros.grid_columnconfigure(1, weight=1)
+
+        ctk.CTkLabel(frame_filtros, text="Fecha (para calcular la semana):", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 10))
+
+        self.fecha_semanal = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
+        self.fecha_semanal.grid(row=0, column=1, sticky="w")
+        self.fecha_semanal.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        self.fecha_semanal.configure(cursor="hand2")
+        self.fecha_semanal.bind("<Button-1>", lambda e: self._abrir_calendario(self.fecha_semanal))
+
+        ctk.CTkButton(frame_filtros, text="Buscar Semana", width=150, command=self._buscar_semanal).grid(row=0, column=2, padx=(10, 0))
+
+        self.container_semanal = ctk.CTkFrame(self.tab_semanal, fg_color="transparent")
+        self.container_semanal.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="nsew")
+        self.container_semanal.grid_columnconfigure((0, 1, 2), weight=1)
+
+    def _setup_tab_mensual(self) -> None:
+        self.tab_mensual.grid_columnconfigure(0, weight=1)
+        self.tab_mensual.grid_rowconfigure(1, weight=1)
+
+        frame_filtros = ctk.CTkFrame(self.tab_mensual, fg_color="transparent")
+        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
+        frame_filtros.grid_columnconfigure(1, weight=1)
+
+        ctk.CTkLabel(frame_filtros, text="Mes de referencia:", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 10))
+
+        self.fecha_mensual = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
+        self.fecha_mensual.grid(row=0, column=1, sticky="w")
+        self.fecha_mensual.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        self.fecha_mensual.configure(cursor="hand2")
+        self.fecha_mensual.bind("<Button-1>", lambda e: self._abrir_calendario(self.fecha_mensual))
+
+        ctk.CTkButton(frame_filtros, text="Ver Gráfico", width=120, command=self._buscar_mensual).grid(row=0, column=2, padx=(10, 0))
+
+        self.container_mensual = ctk.CTkFrame(self.tab_mensual, fg_color="transparent")
+        self.container_mensual.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
+
+    def _setup_tab_adelantos(self) -> None:
+        self.tab_adelantos.grid_columnconfigure(0, weight=1)
+        self.tab_adelantos.grid_rowconfigure(2, weight=1)
+
+        frame_filtros = ctk.CTkFrame(self.tab_adelantos, fg_color="transparent")
+        frame_filtros.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
+
+        ctk.CTkLabel(frame_filtros, text="Desde:", font=ctk.CTkFont(size=14)).grid(row=0, column=0, padx=(0, 5))
+
+        self.fecha_desde_av = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
+        self.fecha_desde_av.grid(row=0, column=1, padx=(0, 15))
+        self.fecha_desde_av.insert(0, (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"))
+        self.fecha_desde_av.configure(cursor="hand2")
+        self.fecha_desde_av.bind("<Button-1>", lambda e: self._abrir_calendario(self.fecha_desde_av))
+
+        ctk.CTkLabel(frame_filtros, text="Hasta:", font=ctk.CTkFont(size=14)).grid(row=0, column=2, padx=(0, 5))
+
+        self.fecha_hasta_av = ctk.CTkEntry(frame_filtros, placeholder_text="YYYY-MM-DD", width=150)
+        self.fecha_hasta_av.grid(row=0, column=3, padx=(0, 15))
+        self.fecha_hasta_av.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        self.fecha_hasta_av.configure(cursor="hand2")
+        self.fecha_hasta_av.bind("<Button-1>", lambda e: self._abrir_calendario(self.fecha_hasta_av))
+
+        ctk.CTkButton(frame_filtros, text="🔍 Buscar", width=120, command=self._buscar_adelantos_viaticos).grid(row=0, column=4)
+
+        frame_excel = ctk.CTkFrame(self.tab_adelantos, fg_color="transparent")
+        frame_excel.grid(row=1, column=0, pady=(0, 5), padx=10, sticky="e")
+
+        self.btn_excel_adelantos = ctk.CTkButton(
+            frame_excel, text="📥 Exportar Adelantos a Excel", width=250, height=35,
+            font=ctk.CTkFont(size=13, weight="bold"),
+            fg_color="#1e8449", hover_color="#196f3d",
+            command=self._exportar_adelantos_excel,
+            state="disabled"
+        )
+        self.btn_excel_adelantos.pack(side="right")
+
+        self.container_av = ctk.CTkScrollableFrame(self.tab_adelantos, fg_color="transparent")
+        self.container_av.grid(row=2, column=0, padx=10, pady=(0, 10), sticky="nsew")
+
     # --- LÓGICA DE BÚSQUEDA Y RENDERIZADO ---
 
     def _limpiar_frame(self, frame: ctk.CTkFrame) -> None:
@@ -180,9 +183,9 @@ class HistorialFrame(ctk.CTkFrame):
     def _buscar_diario(self) -> None:
         fecha = self.fecha_diario.get()
         self._limpiar_frame(self.container_diario)
-        
+
         cajas = self.caja_controller.obtener_cajas_por_fecha(fecha)
-        
+
         if not cajas:
             ctk.CTkLabel(self.container_diario, text=f"No hay cajas cerradas para el {fecha}", font=ctk.CTkFont(size=16), text_color="#7f8c8d").grid(row=0, column=0, pady=50)
             return
@@ -204,7 +207,7 @@ class HistorialFrame(ctk.CTkFrame):
     def _buscar_semanal(self) -> None:
         fecha = self.fecha_semanal.get()
         self._limpiar_frame(self.container_semanal)
-        
+
         try:
             lunes, sabado = self.caja_controller.obtener_rango_semana(fecha)
         except ValueError:
@@ -235,13 +238,14 @@ class HistorialFrame(ctk.CTkFrame):
 
     def _buscar_mensual(self) -> None:
         self._limpiar_frame(self.container_mensual)
-        
+
         try:
-            anio = int(self.anio_entry.get())
-            mes = int(self.mes_entry.get())
-            if not (1 <= mes <= 12): raise ValueError
+            fecha_str = self.fecha_mensual.get().strip()
+            fecha_dt = datetime.strptime(fecha_str, "%Y-%m-%d")
+            anio = fecha_dt.year
+            mes = fecha_dt.month
         except ValueError:
-            ctk.CTkLabel(self.container_mensual, text="Año o Mes inválido.", text_color=COLOR_ERROR).pack(pady=50)
+            ctk.CTkLabel(self.container_mensual, text="Formato de fecha incorrecto. Use YYYY-MM-DD", text_color=COLOR_ERROR).pack(pady=50)
             return
 
         datos_semanas = self.caja_controller.obtener_datos_grafico_mensual(anio, mes)
@@ -251,13 +255,11 @@ class HistorialFrame(ctk.CTkFrame):
             ctk.CTkLabel(self.container_mensual, text="No hay datos para este mes.", font=ctk.CTkFont(size=16), text_color="#7f8c8d").pack(pady=50)
             return
 
-        # Crear figura con 2 espacios (subplots), uno arriba y otro abajo
         fig = Figure(figsize=(8, 7), dpi=100, facecolor='#2b2b2b')
-        
-        # --- GRÁFICO 1: Ingresos vs Egresos (Líneas) ---
+
         ax1 = fig.add_subplot(211)
         ax1.set_facecolor('#2b2b2b')
-        
+
         if datos_semanas:
             semanas = [f"Sem {d['semana']}" for d in datos_semanas]
             ingresos = [d['ingresos_uyu'] for d in datos_semanas]
@@ -271,12 +273,10 @@ class HistorialFrame(ctk.CTkFrame):
         ax1.legend(facecolor='#333333', edgecolor='white', labelcolor='white')
         ax1.grid(True, color='#444444')
 
-        # --- GRÁFICO 2: Adelantos vs Viáticos (Barras) ---
         ax2 = fig.add_subplot(212)
         ax2.set_facecolor('#2b2b2b')
-        
+
         semanas_keys = sorted(datos_av.keys())
-        # Filtrar para mostrar solo las semanas que tengan datos (o hasta la semana 4/5 habitual)
         semanas_labels = [f"Sem {s}" for s in semanas_keys]
         adelantos_vals = [datos_av[s]['adelantos'] for s in semanas_keys]
         viaticos_vals = [datos_av[s]['viaticos'] for s in semanas_keys]
@@ -294,10 +294,8 @@ class HistorialFrame(ctk.CTkFrame):
         ax2.legend(facecolor='#333333', edgecolor='white', labelcolor='white')
         ax2.grid(True, color='#444444', axis='y')
 
-        # Ajustar espacio entre gráficos para que no se superpongan los títulos
         fig.tight_layout(pad=3.0)
 
-        # Integrar en CustomTkinter
         canvas = FigureCanvasTkAgg(fig, master=self.container_mensual)
         canvas.draw()
         canvas.get_tk_widget().pack(fill="both", expand=True)

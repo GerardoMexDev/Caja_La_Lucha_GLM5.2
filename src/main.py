@@ -7,7 +7,8 @@ from models.database import DatabaseManager
 from controllers.user_controller import UserController
 from controllers.caja_controller import CajaController
 from controllers.movimiento_controller import MovimientoController
-from controllers.empleado_controller import EmpleadoController  # NUEVO
+from controllers.empleado_controller import EmpleadoController
+from controllers.proveedor_controller import ProveedorController
 from views.login_view import LoginFrame
 from utils.constants import COLOR_BG
 
@@ -27,7 +28,8 @@ class CajaLaLuchaApp(ctk.CTk):
         self.user_controller = UserController(self.db)
         self.caja_controller = CajaController(self.db)
         self.movimiento_controller = MovimientoController(self.db)
-        self.empleado_controller = EmpleadoController(self.db)  # NUEVO
+        self.empleado_controller = EmpleadoController(self.db)
+        self.proveedor_controller = ProveedorController(self.db)
         self.user_controller.ensure_admin_exists()
 
         self.current_user: Optional[Dict[str, Any]] = None
@@ -79,9 +81,9 @@ class CajaLaLuchaApp(ctk.CTk):
         self._clear_frame()
         self.title("Caja La Lucha — Apertura de Jornada")
         self._center(500, 420)
-        
+
         fondo_sugerido = self.caja_controller.obtener_ultimo_saldo_cerrado()
-        
+
         self._active_frame = PortalFrame(
             parent=self,
             usuario=self.current_user,
@@ -108,7 +110,8 @@ class CajaLaLuchaApp(ctk.CTk):
             movimiento_controller=self.movimiento_controller,
             caja_controller=self.caja_controller,
             user_controller=self.user_controller,
-            empleado_controller=self.empleado_controller,  # NUEVO
+            empleado_controller=self.empleado_controller,
+            proveedor_controller=self.proveedor_controller,
             on_logout=self._on_logout,
             on_caja_cerrada=self._on_caja_cerrada,
         )

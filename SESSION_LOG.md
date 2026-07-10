@@ -114,3 +114,119 @@ Gestión de Usuarios: Funcional (Solo Admin).
 Próximos pasos (Sesión 6):
 
 Generación de Reportes en formato Excel (Instalación de openpyxl). 
+
+
+SESIÓN 8 y 9 (Push combinado): Módulo de Empleados, Reportes Avanzados y Liquidación
+Fecha: 2024-07-0X | Estado: Completada y Sincronizada (GitHub)
+
+Lo que se hizo:
+
+[REVISIÓN Y CIERRE DE SESIÓN 8]
+- Revisión general de la Sesión 8 a medio terminar.
+- Task 17-22: Verificadas y validadas (Diccionarios, DB, Controlador de empleados, Vista de empleados, Selector dinámico en movimientos).
+- Task 23: Agregados los métodos faltantes `obtener_adelantos_por_rango` y `obtener_viaticos_por_rango` en movimiento_controller.py.
+- Task 24: Creada e inyectada la 4ta pestaña "Adelantos y Viáticos" en historial_view.py. Corregida la inyección de movimiento_controller en dashboard_view.py.
+- MEJORA UX: Reemplazada la selección de fecha manual (YYYY-MM-DD) por Calendarios Emergentes (tkcalendar + Toplevel) en el historial de Adelantos/Viáticos para evitar errores de tipeo del usuario.
+- MEJORA DE NEGOCIO: El reporte de Adelantos ahora muestra los movimientos **agrupados por colaborador** con subtotales individuales por persona, en lugar de una lista plana.
+- MEJORA UX: Agregado botón "Exportar Adelantos a Excel" (con diseño profesional: colores por sección, subtotales, bordes).
+- FIX: Corregido error de layout `_tkinter.TclError: cannot use geometry manager pack inside...` al cambiar el mensaje de confirmación de Excel de `.pack()` a `.grid()`.
+
+[SESIÓN 9 COMPLETA]
+- Task 25: Creado módulo de Liquidación de Sueldos (liquidacion_view.py). 
+  - Lógica en empleado_controller para calcular: Sueldo Base - Adelantos del periodo = Pago Final.
+  - Tabla resumen con totales generales.
+  - Exportación a Excel de la liquidación.
+  - Integración en el sidebar del dashboard (Solo Admin).
+- Task 26: Mejorada la pestaña Mensual en historial_view.py.
+  - Nuevo método en movimiento_controller para extraer adelantos y viáticos agrupados por semana del mes.
+  - Gráfico ahora es doble (Subplots): Arriba sigue la línea de Ingresos/Egresos de caja. Abajo se agregaron barras comparativas (Adelantos vs Viáticos por semana).
+
+Lecciones aprendidas:
+REGLA DE WINDOWS/GIT: En Windows, "nul" es un nombre de archivo reservado del sistema. Si se crea un archivo llamado así (ej. por un error de redirección en la terminal), Git fallará fatalmente al hacer `git add .`. Solución: `rm -f ./nul` antes de agregar.
+REGLA DE CTk + CALENDARIOS: Los widgets nativos de Tkinter (como DateEntry de tkcalendar) suelen ser invisibles o romper el diseño oscuro de CustomTkinter. La mejor solución es mantener el CTkEntry y abrir un Toplevel (ventana emergente) con el Calendar al hacer clic.
+REGLA DE LAYOUT FIJA: Si el contenedor base usa `.grid()`, cualquier cosa que se agregue dinámicamente después (como un label de "Operación exitosa") debe usar `.grid()` obligatoriamente, o la aplicación crashea.
+
+Estado actual del sistema:
+Login: Funcional.
+Apertura de Caja: Funcional.
+Registro de Movimientos: Funcional (Con selector inteligente de empleados).
+Resumen del Día: Funcional.
+Cierre de Caja: Funcional.
+Gestión de Usuarios: Funcional (Solo Admin).
+Gestión de Empleados: Funcional (Solo Admin).
+Historial Diario/Semanal/Mensual: Funcional (Con gráfica doble de Caja y Gastos operativos).
+Reportes de Adelantos y Viáticos: Funcional (Agrupados por empleado, con Calendario y Excel).
+Liquidación de Sueldos Semanal: Funcional (Solo Admin, Cálculo automático y Excel).
+Exportación a Excel: Funcional (Múltiples módulos).
+Git: Sincronizado y subido a GitHub.
+
+Próximos pasos (Sesión 10):
+- Pulir detalles visuales (Ej: compactar tabla de movimientos del día).
+- Agregar validaciones de seguridad (Ej: Bloquear cierre de caja si hay inconsistencias graves).
+- Módulo de Proveedores o Cuentas por pagar (si aplica para el taller).
+SESIÓN 10: Mejoras Visuales, Branding y Alertas de Negocio (Parcial)
+Fecha: 2024-07-04 | Estado: Completada (Parcial - Pendiente Módulo Proveedores)
+
+Lo que se hizo:
+
+- Mejora de Branding: Integrado el logo real del negocio (`Logo_La_Lucha.png`) en la pantalla de Login, reemplazando el emoji genérico. Se almacenó en `src/assets/`.
+- Leyenda de Desarrollador: Agregado "Desarrollado por MazDesign" en dos lugares:
+  - Login: Flotando en el fondo azul marino (esquina inferior).
+  - Dashboard: Flotando en la esquina inferior derecha usando `.place()`.
+- Alerta de Caja Única Diaria: Implementado `existe_caja_cerrada_hoy()` en `caja_controller.py`. Si el usuario intenta abrir una caja y ya hubo una cerrada ese día, se muestra una advertencia roja en `portal_view.py`.
+- Optimización de UI: Reducido el padding vertical del contenedor del logo en el login para una visualización más compacta.
+
+Lecciones aprendidas:
+
+- LECCIÓN CTk OVERLAYS: Nunca usar `ctk.CTkLabel` con `.place()` flotando sobre la interfaz si debajo hay botones. CustomTkinter crea cajas invisibles que interceptan y "roban" el evento de clic. Solución: Usar `tk.Label` nativo de la librería estándar de Python para textos overlay que no requieren interacción.
+
+Estado actual del sistema:
+- Login: Funcional (Con logo real y leyenda MazDesign).
+- Apertura de Caja: Funcional (Con advertencia de caja única diaria).
+- Resto de módulos: Funcionales (Con leyenda MazDesign en Dashboard).
+- Módulo de Proveedores: Pendiente.
+
+Próximos pasos (Sesión 11):
+- Colocar logo en el Sidebar del Dashboard.
+- Módulo de Proveedores / Cuentas por Pagar (Tabla facturas, campos: proveedor, fecha compra, monto, IVA, fecha pago).
+
+
+
+SESIÓN 11: Mejoras Visuales, Módulo Proveedores y UX de Calendarios
+Fecha: 2024-07-05 | Estado: Completada
+
+Lo que se hizo:
+
+- Task 27: Mejora de UI en Login. Reducido el padding excesivo del logo (de 120px a 110px, padding vertical a 0) para subir el botón de inicio de sesión. Movida la leyenda "Desarrollado por MazDesign" al borde inferior absoluto (rely=1.0) para que quede completamente en el fondo azul oscuro.
+- Task 28: FIX Logo Dashboard. Corregido bug crítico donde el logo no aparecía. 
+  1) La ruta calculaba mal (apuntaba a src/views/assets/ en lugar de src/assets/). Se corrigió con os.path.abspath y "..".
+  2) Error de CustomTkinter: CTkImage exigía un objeto PIL.Image.Image, no un string de ruta. Se agregó Image.open() antes de instanciar.
+- Task 29: FIX Footer Dashboard. Aplicada misma corrección que en Login (rely=1.0).
+- Task 30: Módulo Proveedores - Multi-moneda. Agregado soporte para UYU y USD en las facturas. Nueva columna 'moneda' en BD con migración automática (ALTER TABLE). ComboBox en formulario, símbolo dinámico ($/U$S) en el cálculo de IVA en tiempo real, separación de totales en tarjetas resumen (Total UYU / Total USD) y exportación a Excel.
+- Task 31: Historial - Calendarios Globales. Implementado el selector de calendario emergente (tkcalendar + Toplevel) en las pestañas Diario, Semanal y Mensual. En Mensual, se reemplazaron los dos campos manuales (Año/Mes) por un solo campo de fecha con calendario que extrae año y mes automáticamente, unificando la experiencia de usuario.
+
+Lecciones aprendidas:
+
+- LECCIÓN CTk IMAGE: En versiones recientes/alphas de CustomTkinter, CTkImage lanza ValueError si se le pasa un string de ruta. Siempre hacer Image.open(path) primero y pasar el objeto PIL.
+- LECCIÓN RUTAS DESDE VISTAS: Al calcular rutas desde dentro de src/views/, hay que usar os.path.join(..., "..", "assets") para salir de la carpeta views. Usar os.path.abspath() para evitar ambigüedades del sistema operativo.
+- LECCIÓN PLACE RELY: Para que un label flotante (overlay) quede exactamente en el borde inferior de un widget, usar rely=1.0 con anchor="s", no rely=0.98 o 0.99.
+
+Estado actual del sistema:
+- Login: Funcional (Logo optimizado, footer en borde inferior).
+- Apertura de Caja: Funcional (Con advertencia de caja única diaria).
+- Registro de Movimientos: Funcional (Con selector inteligente de empleados).
+- Resumen del Día: Funcional.
+- Cierre de Caja: Funcional (Con conteo físico).
+- Gestión de Usuarios: Funcional (Solo Admin).
+- Gestión de Empleados: Funcional (Solo Admin).
+- Historial Diario/Semanal/Mensual: Funcional (Con calendario emergente en todas las pestañas).
+- Reportes de Adelantos y Viáticos: Funcional (Agrupados por empleado, con Calendario y Excel).
+- Liquidación de Sueldos Semanal: Funcional (Solo Admin, Cálculo automático y Excel).
+- Gestión de Proveedores: Funcional (Solo Admin, Altas/Bajas, Facturas UYU/USD, Pago/Cancelación, Excel).
+- Exportación a Excel: Funcional (Múltiples módulos).
+- Git: Sincronizado y subido a GitHub.
+
+Próximos pasos (Sesión 12):
+- Validación de seguridad (Ej: Bloquear cierre de caja si hay inconsistencias graves).
+- Pulir detalles visuales generales.
+- Módulo de Backup de BD o configuraciones del sistema (si aplica).
